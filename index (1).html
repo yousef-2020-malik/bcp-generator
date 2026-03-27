@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT BCP Testing Report Generator — Carrefour UAE</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/build/index.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=DM+Sans:wght@300;400;500&display=swap');
+  :root{--bg:#0d1117;--surface:#161b22;--surface2:#1c2230;--border:#21262d;--accent:#f0a500;--accent2:#e05c00;--text:#e6edf3;--muted:#7d8590;--success:#3fb950;--danger:#f85149;--radius:12px;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+  .header{background:linear-gradient(135deg,#1a1000,#0d1117);border-bottom:1px solid var(--border);padding:16px 26px;display:flex;align-items:center;gap:13px;}
+  .logo{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .header-text h1{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent);}
+  .header-text p{font-size:11px;color:var(--muted);margin-top:2px;}
+  .badge{margin-left:auto;background:rgba(240,165,0,.12);border:1px solid rgba(240,165,0,.3);color:var(--accent);font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
+  .setup-banner{background:rgba(43,124,255,.08);border:1px solid rgba(43,124,255,.3);border-radius:var(--radius);margin:12px 18px 0;padding:11px 14px;font-size:12px;color:#79b8ff;}
+  .setup-banner strong{display:block;margin-bottom:5px;color:#a8d4ff;}
+  .setup-banner code{background:rgba(43,124,255,.15);padding:1px 5px;border-radius:3px;font-size:11px;}
+  .key-row{display:flex;align-items:center;gap:7px;margin-top:5px;flex-wrap:wrap;}
+  #apiKeyInput{background:var(--bg);border:1px solid rgba(43,124,255,.4);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:7px 11px;width:260px;outline:none;}
+  #apiKeyInput:focus{border-color:#2b7cff;}
+  .save-key-btn{background:#2b7cff;color:#fff;border:none;border-radius:7px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;}
+  .key-saved{color:var(--success);font-size:11px;margin-top:3px;display:none;}
+  .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);margin-top:12px;}
+  .tab{padding:10px 20px;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted);transition:all .2s;}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .tab:hover:not(.active){color:var(--text);}
+  .main{display:flex;height:calc(100vh - 168px);}
+  .sidebar{width:285px;min-width:285px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+  .sidebar-title{padding:12px 16px 10px;font-family:'Syne',sans-serif;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);}
+  .scroll-area{flex:1;overflow-y:auto;padding:13px;}
+  .fg{margin-bottom:10px;}
+  .fg label{display:block;font-size:10px;font-weight:500;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
+  .fg input,.fg select,.fg textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:7px 10px;transition:border-color .2s;outline:none;}
+  .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);}
+  .fg textarea{resize:vertical;min-height:52px;font-size:12px;}
+  .fg select option{background:var(--surface);}
+  .slabel{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin:12px 0 7px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+  .gen-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;border:none;border-radius:var(--radius);padding:12px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;margin-top:6px;}
+  .gen-btn:hover{opacity:.9;transform:translateY(-1px);}
+  .gen-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+  .store-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;cursor:pointer;transition:border-color .2s;position:relative;margin-bottom:7px;}
+  .store-card:hover,.store-card.sel{border-color:var(--accent);}
+  .store-card .scn{font-weight:600;font-size:12px;}
+  .store-card .scl{font-size:11px;color:var(--muted);margin-top:1px;}
+  .store-card .scb{position:absolute;top:9px;right:10px;font-size:15px;}
+  .add-store-btn{border:2px dashed var(--border);border-radius:var(--radius);padding:8px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer;transition:all .2s;margin-bottom:7px;}
+  .add-store-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .gen-all-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;border:none;border-radius:var(--radius);padding:11px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .2s;}
+  .gen-all-btn:disabled{opacity:.45;cursor:not-allowed;}
+  .sedit{background:var(--surface2);border:1px solid var(--accent);border-radius:var(--radius);padding:11px;margin-bottom:7px;}
+  .sedit .set{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--accent);margin-bottom:7px;}
+  .remove-btn{width:100%;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);color:var(--danger);border-radius:7px;padding:6px;font-size:11px;cursor:pointer;margin-top:3px;}
+  .output-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+  .output-toolbar{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;}
+  .output-toolbar h2{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+  .toolbar-actions{margin-left:auto;display:flex;gap:6px;}
+  .btn-out{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:6px 11px;font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;}
+  .btn-out:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-docx:hover{border-color:#2b7cff!important;color:#2b7cff!important;}
+  .output-content{flex:1;overflow-y:auto;padding:20px;}
+  .placeholder{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted);text-align:center;}
+  .placeholder .pi{font-size:42px;opacity:.2;}
+  .placeholder h3{font-family:'Syne',sans-serif;font-size:15px;color:var(--text);opacity:.3;}
+  .placeholder p{font-size:12px;max-width:260px;line-height:1.6;}
+  .spinner-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;padding:60px 0;color:var(--muted);}
+  .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .bcp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
+  .bcp-head{background:linear-gradient(135deg,rgba(240,165,0,.12),rgba(224,92,0,.07));border-bottom:1px solid var(--border);padding:14px 18px;}
+  .bcp-head-top{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+  .bcp-tag{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;font-weight:700;font-family:'Syne',sans-serif;padding:3px 9px;border-radius:20px;font-size:10px;}
+  .bcp-head h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;}
+  .bcp-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+  .bcp-mi{background:rgba(0,0,0,.2);border-radius:6px;padding:7px 9px;}
+  .bcp-mi .lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px;}
+  .bcp-mi .val{font-size:11px;font-weight:500;}
+  .bcp-body{padding:18px;}
+  .bcp-sec{margin-bottom:18px;}
+  .bcp-sec h4{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+  .bcp-sec p,.bcp-sec li{font-size:12px;line-height:1.8;color:#c9d1d9;}
+  .bcp-sec ul{padding-left:15px;}
+  .bcp-sec li{margin-bottom:2px;}
+  .bcp-tbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:5px;}
+  .bcp-tbl th{background:rgba(240,165,0,.1);color:var(--accent);padding:6px 9px;text-align:left;border:1px solid var(--border);font-size:10px;font-weight:600;}
+  .bcp-tbl td{padding:6px 9px;border:1px solid var(--border);color:#c9d1d9;vertical-align:top;}
+  .bcp-tbl tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+  .batch-prog{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+  .bp-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;margin-bottom:9px;}
+  .bp-bg{background:var(--border);border-radius:4px;height:5px;margin-bottom:9px;}
+  .bp-bar{background:linear-gradient(90deg,var(--accent),var(--accent2));height:5px;border-radius:4px;transition:width .4s;}
+  .bp-list{display:flex;flex-direction:column;gap:4px;}
+  .bp-item{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;}
+  .bp-item.done{color:var(--success);}.bp-item.active{color:var(--accent);}.bp-item.err{color:var(--danger);}
+  .err-box{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:var(--radius);padding:11px 14px;font-size:12px;color:#ff8080;margin-bottom:9px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">📋</div>
+  <div class="header-text">
+    <h1>IT BCP Testing Report Generator</h1>
+    <p>Generates reports matching the official Carrefour UAE BCP template</p>
+  </div>
+  <div class="badge">AI Powered</div>
+</div>
+
+<div class="setup-banner" id="setupBanner">
+  <strong>🔑 One-time Setup — Enter your Anthropic API Key</strong>
+  Saved in your browser only. Get a free key at <code>console.anthropic.com</code>
+  <div class="key-row">
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <button class="save-key-btn" onclick="saveKey()">Save Key</button>
+  </div>
+  <div id="keySaved" class="key-saved">✅ Key saved! You're ready to generate BCP reports.</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('single')">📄 Single Store</div>
+  <div class="tab" onclick="switchTab('batch')">🏪 Multi-Store Batch</div>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <!-- SINGLE -->
+    <div id="singleSidebar" style="display:flex;flex-direction:column;height:100%;">
+      <div class="sidebar-title">Store Information</div>
+      <div class="scroll-area">
+        <div class="slabel">📍 Store & Test Info</div>
+        <div class="fg"><label>Store Name *</label><input id="storeName" placeholder="e.g. Marina Mall Store"></div>
+        <div class="fg"><label>Store Code *</label><input id="storeCode" placeholder="e.g. MAR"></div>
+        <div class="fg"><label>Country</label><input id="country" value="UAE"></div>
+        <div class="fg"><label>Test Date</label><input id="testDate" type="date"></div>
+
+        <div class="slabel">👤 People</div>
+        <div class="fg"><label>IT Manager Name</label><input id="itManager" placeholder="e.g. Malik Al Daraghmeh"></div>
+        <div class="fg"><label>IT Manager Email</label><input id="itEmail" placeholder="e.g. mdaragmeh@maf.ae"></div>
+        <div class="fg"><label>Store GM Name</label><input id="storeGM" placeholder="e.g. Hassan Tarabay"></div>
+        <div class="fg"><label>IT Officer Name</label><input id="itOfficer" placeholder="e.g. Jhangir Bazmi"></div>
+        <div class="fg"><label>IT Officer Email</label><input id="itOfficerEmail" placeholder="e.g. jbazmi@maf.ae"></div>
+        <div class="fg"><label>Commercial DH Name</label><input id="commercialDH" placeholder="e.g. Jalal Kaasamani"></div>
+
+        <div class="slabel">🖥️ Device Inventory</div>
+        <div class="fg"><label>POS Terminals</label><input id="posCount" type="number" placeholder="e.g. 28"></div>
+        <div class="fg"><label>Scales (Mettler Toledo)</label><input id="scalesCount" type="number" placeholder="e.g. 23"></div>
+        <div class="fg"><label>LDT Handhelds</label><input id="ldtCount" type="number" placeholder="e.g. 50"></div>
+        <div class="fg"><label>Self-Checkout Machines</label><input id="scoCount" type="number" placeholder="e.g. 12"></div>
+        <div class="fg"><label>Servers (Lenovo)</label><input id="serverCount" type="number" placeholder="e.g. 2"></div>
+        <div class="fg"><label>Network Devices (Cisco)</label><input id="networkCount" type="number" placeholder="e.g. 35"></div>
+
+        <div class="slabel">🧪 Test Details</div>
+        <div class="fg"><label>Scenarios Tested</label>
+          <textarea id="scenarios" placeholder="Store IT Support Unavailability, Scale Server Failure, GIMA Integration Failure, Network Outage, POS Failure, Power Failure"></textarea>
+        </div>
+
+        <div class="slabel">📝 Findings</div>
+        <div class="fg"><label>Key Observations</label>
+          <textarea id="observations" placeholder="e.g. Manual recovery processes require documentation updates..."></textarea>
+        </div>
+        <div class="fg"><label>Key Challenges</label>
+          <textarea id="challenges" placeholder="e.g. Backup system enhancement in progress..."></textarea>
+        </div>
+        <div class="fg"><label>Points for Next Test</label>
+          <textarea id="nextTest" placeholder="e.g. New sections and teams to be involved..."></textarea>
+        </div>
+
+        <button class="gen-btn" id="genBtn" onclick="generateSingle()">⚡ Generate BCP Report</button>
+      </div>
+    </div>
+
+    <!-- BATCH -->
+    <div id="batchSidebar" style="display:none;flex-direction:column;height:100%;">
+      <div class="sidebar-title">Stores</div>
+      <div class="scroll-area" id="storesList"></div>
+      <div style="padding:9px 13px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;">
+        <div class="add-store-btn" onclick="addStore()">+ Add Another Store</div>
+        <button class="gen-all-btn" id="genAllBtn" onclick="generateAll()">⚡ Generate All BCP Reports</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="output-panel">
+    <div class="output-toolbar">
+      <h2 id="outputTitle">Generated BCP Report</h2>
+      <div class="toolbar-actions" id="toolbarActions" style="display:none">
+        <button class="btn-out" onclick="copyBCP()">📋 Copy</button>
+        <button class="btn-out btn-docx" onclick="downloadDocx()">📝 Download .docx</button>
+        <button class="btn-out" onclick="downloadTxt()">⬇️ .txt</button>
+      </div>
+    </div>
+    <div class="output-content" id="outputContent">
+      <div class="placeholder">
+        <div class="pi">📋</div>
+        <h3>Ready to Generate</h3>
+        <p>Fill in store details and click Generate — AI will create a report matching your official Carrefour UAE BCP template.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentTab='single',lastText='',lastStoreName='';
+let stores=[{id:1,name:'Store 1',code:'',country:'UAE',date:'',itManager:'',itEmail:'',storeGM:'',itOfficer:'',itOfficerEmail:'',commercialDH:'',posCount:'',scalesCount:'',ldtCount:'',scoCount:'',serverCount:'',networkCount:'',scenarios:'',observations:'',challenges:'',nextTest:'',status:'pending',result:''}];
+let nextId=2,activeEdit=null;
+
+document.getElementById('testDate').value=new Date().toISOString().split('T')[0];
+
+function saveKey(){const k=document.getElementById('apiKeyInput').value.trim();if(!k.startsWith('sk-')){alert('Enter a valid Anthropic API key (starts with sk-)');return;}localStorage.setItem('bcp_key',k);document.getElementById('keySaved').style.display='block';document.getElementById('setupBanner').style.cssText+='background:rgba(63,185,80,.08);border-color:rgba(63,185,80,.3);';}
+function getKey(){return localStorage.getItem('bcp_key')||'';}
+
+window.addEventListener('load',()=>{const k=getKey();if(k){document.getElementById('apiKeyInput').value=k;document.getElementById('keySaved').style.display='block';document.getElementById('setupBanner').style.cssText+='background:rgba(63,185,80,.08);border-color:rgba(63,185,80,.3);';}renderStoresList();});
+
+function switchTab(tab){currentTab=tab;document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='single')||(i===1&&tab==='batch')));document.getElementById('singleSidebar').style.display=tab==='single'?'flex':'none';document.getElementById('batchSidebar').style.display=tab==='batch'?'flex':'none';if(tab==='batch')renderStoresList();document.getElementById('outputContent').innerHTML=`<div class="placeholder"><div class="pi">📋</div><h3>Ready</h3><p>${tab==='batch'?'Add stores and click Generate All.':'Fill store info and click Generate.'}</p></div>`;document.getElementById('toolbarActions').style.display='none';document.getElementById('outputTitle').textContent=tab==='batch'?'Generated BCP Reports':'Generated BCP Report';}
+
+function gv(id){return document.getElementById(id)?document.getElementById(id).value.trim():'';}
+function collectSingle(){return{name:gv('storeName'),code:gv('storeCode'),country:gv('country')||'UAE',date:gv('testDate'),itManager:gv('itManager'),itEmail:gv('itEmail'),storeGM:gv('storeGM'),itOfficer:gv('itOfficer'),itOfficerEmail:gv('itOfficerEmail'),commercialDH:gv('commercialDH'),posCount:gv('posCount'),scalesCount:gv('scalesCount'),ldtCount:gv('ldtCount'),scoCount:gv('scoCount'),serverCount:gv('serverCount'),networkCount:gv('networkCount'),scenarios:gv('scenarios'),observations:gv('observations'),challenges:gv('challenges'),nextTest:gv('nextTest')};}
+
+async function generateSingle(){if(!getKey()){alert('Please save your Anthropic API key first.');return;}const name=gv('storeName');if(!name){alert('Please enter a Store Name.');return;}const btn=document.getElementById('genBtn');btn.disabled=true;btn.textContent='⏳ Generating...';document.getElementById('toolbarActions').style.display='none';document.getElementById('outputContent').innerHTML=`<div class="spinner-wrap"><div class="spinner"></div><p>Generating BCP Report for <strong>${name}</strong>...</p></div>`;const data=collectSingle();const text=await callAI(data);btn.disabled=false;btn.textContent='⚡ Generate BCP Report';if(!text)return;lastText=text;lastStoreName=name;renderBCPs([{...data,text}]);document.getElementById('toolbarActions').style.display='flex';}
+
+function renderStoresList(){const el=document.getElementById('storesList');if(!el)return;let html='';stores.forEach(s=>{html+=`<div class="store-card ${activeEdit===s.id?'sel':''}" onclick="toggleEdit(${s.id})"><div class="scn">${s.name||'Unnamed'}</div><div class="scl">${s.country||'UAE'}${s.code?' · '+s.code:''}</div><div class="scb">${s.status==='done'?'✅':s.status==='err'?'❌':s.status==='running'?'⏳':'🔲'}</div></div>`;if(activeEdit===s.id){html+=`<div class="sedit"><div class="set">✏️ ${s.name}</div><div class="fg"><label>Store Name</label><input value="${s.name}" oninput="us(${s.id},'name',this.value)"></div><div class="fg"><label>Store Code</label><input value="${s.code}" oninput="us(${s.id},'code',this.value)"></div><div class="fg"><label>Country</label><input value="${s.country}" oninput="us(${s.id},'country',this.value)"></div><div class="fg"><label>Test Date</label><input type="date" value="${s.date}" oninput="us(${s.id},'date',this.value)"></div><div class="fg"><label>IT Manager</label><input value="${s.itManager}" oninput="us(${s.id},'itManager',this.value)"></div><div class="fg"><label>IT Manager Email</label><input value="${s.itEmail}" oninput="us(${s.id},'itEmail',this.value)"></div><div class="fg"><label>Store GM</label><input value="${s.storeGM}" oninput="us(${s.id},'storeGM',this.value)"></div><div class="fg"><label>IT Officer</label><input value="${s.itOfficer}" oninput="us(${s.id},'itOfficer',this.value)"></div><div class="fg"><label>POS Terminals</label><input type="number" value="${s.posCount}" oninput="us(${s.id},'posCount',this.value)"></div><div class="fg"><label>Scales</label><input type="number" value="${s.scalesCount}" oninput="us(${s.id},'scalesCount',this.value)"></div><div class="fg"><label>Self-Checkout</label><input type="number" value="${s.scoCount}" oninput="us(${s.id},'scoCount',this.value)"></div><div class="fg"><label>Scenarios</label><textarea oninput="us(${s.id},'scenarios',this.value)">${s.scenarios}</textarea></div><div class="fg"><label>Observations</label><textarea oninput="us(${s.id},'observations',this.value)">${s.observations}</textarea></div><div class="fg"><label>Challenges</label><textarea oninput="us(${s.id},'challenges',this.value)">${s.challenges}</textarea></div><button class="remove-btn" onclick="removeStore(${s.id});event.stopPropagation()">🗑 Remove</button></div>`;}});el.innerHTML=html;}
+
+function us(id,key,val){const s=stores.find(x=>x.id===id);if(s)s[key]=val;}
+function toggleEdit(id){activeEdit=activeEdit===id?null:id;renderStoresList();}
+function removeStore(id){stores=stores.filter(x=>x.id!==id);activeEdit=null;renderStoresList();}
+function addStore(){const id=nextId++;stores.push({id,name:`Store ${id}`,code:'',country:'UAE',date:new Date().toISOString().split('T')[0],itManager:'',itEmail:'',storeGM:'',itOfficer:'',itOfficerEmail:'',commercialDH:'',posCount:'',scalesCount:'',ldtCount:'',scoCount:'',serverCount:'',networkCount:'',scenarios:'',observations:'',challenges:'',nextTest:'',status:'pending',result:''});activeEdit=id;renderStoresList();setTimeout(()=>document.getElementById('storesList').scrollTop=99999,50);}
+
+async function generateAll(){if(!getKey()){alert('Please save your API key first.');return;}if(!stores.length){alert('Add at least one store.');return;}document.getElementById('genAllBtn').disabled=true;document.getElementById('genAllBtn').textContent='⏳ Generating...';document.getElementById('toolbarActions').style.display='none';stores.forEach(s=>s.status='pending');activeEdit=null;renderStoresList();document.getElementById('outputContent').innerHTML=`<div class="batch-prog"><div class="bp-title">⚡ Generating ${stores.length} BCP Report${stores.length>1?'s':''}...</div><div class="bp-bg"><div class="bp-bar" id="bpBar" style="width:0%"></div></div><div class="bp-list" id="bpList">${stores.map(s=>`<div class="bp-item" id="bpi_${s.id}">🔲 ${s.name}</div>`).join('')}</div></div>`;let done=0;for(const s of stores){const el=document.getElementById(`bpi_${s.id}`);el.className='bp-item active';el.innerHTML=`<span style="display:inline-block;width:11px;height:11px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;"></span> ${s.name}`;s.status='running';const text=await callAI(s);if(text){s.result=text;s.status='done';el.className='bp-item done';el.textContent=`✅ ${s.name}`;}else{s.status='err';el.className='bp-item err';el.textContent=`❌ ${s.name}`;}done++;document.getElementById('bpBar').style.width=`${(done/stores.length)*100}%`;}const ok=stores.filter(s=>s.status==='done');renderBCPs(ok.map(s=>({...s,text:s.result})));lastText=stores.map(s=>`=== ${s.name} ===\n${s.result}`).join('\n\n');lastStoreName='All_Stores';document.getElementById('toolbarActions').style.display='flex';document.getElementById('genAllBtn').disabled=false;document.getElementById('genAllBtn').textContent='⚡ Generate All BCP Reports';renderStoresList();}
+
+async function callAI(d){
+  const dateStr=d.date?new Date(d.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const monthYear=d.date?new Date(d.date).toLocaleDateString('en-GB',{month:'short',year:'numeric'}):'Mar 2026';
+  const prompt=`You are an IT Business Continuity Planning expert at Carrefour UAE (Majid Al Futtaim). Generate a complete IT BCP Testing Report for the following store. Follow the EXACT structure of the official Carrefour UAE BCP template.
+
+STORE DETAILS:
+Store Name: ${d.name} | Store Code: ${d.code||'TBD'} | Country: ${d.country||'UAE'} | Test Date: ${dateStr}
+IT Manager: ${d.itManager||'IT Manager'} (${d.itEmail||'itmanager@maf.ae'})
+Store GM: ${d.storeGM||'Store GM'} | IT Officer: ${d.itOfficer||'IT Officer'} (${d.itOfficerEmail||'itofficer@maf.ae'})
+Commercial DH: ${d.commercialDH||'Commercial DH'}
+Devices: ${d.posCount||'N/A'} POS Terminals, ${d.scalesCount||'N/A'} Scales, ${d.ldtCount||'N/A'} LDT Handhelds, ${d.scoCount||'N/A'} Self-Checkout, ${d.serverCount||'N/A'} Servers, ${d.networkCount||'N/A'} Network Devices
+Scenarios: ${d.scenarios||'Store IT Support Unavailability, Scale Server Connectivity Failure, GIMA Integration Failure, Store Network Outage, POS Integration Failure, Power Failure'}
+Observations: ${d.observations||'Manual recovery processes require documentation updates. Backup validation procedures need review with SME and IT team.'}
+Challenges: ${d.challenges||'Backup system enhancement project is in progress to ensure all countries are covered under Cohesity backup solution.'}
+Next Test Points: ${d.nextTest||'New sections and teams to be involved.'}
+
+Generate the report with EXACTLY these ## section headers:
+
+## TESTING EXERCISE OVERVIEW
+Table with rows for: Testing Exercise Objective (validate IT BCP effectiveness, assess readiness, confirm RTOs, identify gaps), Scope (POS, Scale Server, GIMA, Store Network, Power Infrastructure, Critical Data Backup — Out of scope: HO datacenter), Test Success Criteria, BCP Test Type & Planned Failure Scenario (Table Top Exercise), Assumptions/Limitations.
+
+## DATE & TIME OF EXECUTION
+Table with columns: Test Scenario | Date | Start Time | End Time. List each scenario from the scenarios field above with realistic times on the test date.
+
+## STORE TECHNOLOGY INVENTORY
+Table listing all documentation items: store network diagrams, Wi-Fi architecture, CCTV & access control, store infrastructure diagrams, POS terminals & software, Servers & server room, Primary ISP, Secondary ISP, 4G/5G backup, WAN router, vendor contracts & AMC, back-office systems, payment gateway, loyalty systems, self-checkout, digital signage, handheld device apps. Status: ✔ Available, Last Updated: ${monthYear}.
+
+## SECURE DIGITAL REPOSITORY
+List of required items: store applications inventory, hardware inventory, system passwords/access credentials (secured vault), active systems and services, inventory of spare parts.
+
+## OFFLINE PRICING GOVERNANCE
+Accountability framework table (Store Manager and IT Manager roles). Governance principles bullet list.
+
+## POWER & FACILITY INFRASTRUCTURE
+Table with rows: UPS Capacity, Generator Availability, Server Room Cooling, Power Redundancy, Power Recovery Procedures — each with Requirements & Notes and Status columns.
+
+## AFFECTED FUNCTIONS & TEAMS
+Table: Function | Team | Description. Cover IT Support, CCO/Finance, Commercial, Facilities/Maintenance.
+
+## RECOVERY OBJECTIVES (RTO/RPO)
+Table: System | RTO | RPO | Notes & Contingency. Cover POS (1-2hrs / 30min), Store Network (1hr), Scale Server (4hrs / 1hr), GIMA (4hrs / 1hr), Power/UPS (30min), Critical Data Backup (Same Day). Use device counts for context.
+
+## COMMUNICATION PLAN & RACI
+Communication channels table. Then Roles & Responsibilities table (IT Manager, Service Desk, Network Team, Application Team, Store Manager).
+
+## TEAM MEMBERS PARTICIPATED
+Table: S.No. | Team Member | Team | Role | Email. Include IT Manager, IT Officer, Commercial DH, and any other named personnel.
+
+## TESTING EXERCISE OUTCOMES
+For each scenario, provide a detailed entry: Scenario name (underlined), Sub Process, Failure Scenario, Department Responsible, Impact description, Recovery Procedure (numbered bullet steps), Planned/Actual Start/End Times, Final Status (✔ Successful on Time). Make procedures specific and technical for a UAE supermarket IT environment (GIMA/IBM AS400, SMA server, Cohesity backup, Toshiba POS, Mettler Toledo scales, 5G failover).
+
+## KEY OBSERVATIONS
+Numbered table of observations from this test exercise.
+
+## POINTS FOR NEXT TEST
+Numbered table of improvements for next exercise.
+
+## KEY CHALLENGES / PROBLEMS ENCOUNTERED
+Numbered table of challenges during this test.
+
+## ACTION PLAN
+Table: S.No. | Action Items | Owner — leave 3 empty rows.
+
+## ANNEXURE A — EVIDENCE RECORDS
+Table: No. | Applications/Resources Tested | Evidence Type (Report/Snapshot/Hard Copy) | Submitted by (Team). Include GIMA/SMA/MTStar, shelf/scale labels, Cohesity report, UPS report.
+
+Be specific, professional, and technical. Reference actual UAE retail systems (GIMA, SMA, MTStar, Cohesity, Toshiba POS, Mettler Toledo, Cisco). Use device counts provided.`;
+
+  try{const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":getKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})});const data=await res.json();if(data.error){document.getElementById('outputContent').innerHTML+=`<div class="err-box">⚠️ API Error: ${data.error.message}</div>`;return null;}return data.content.map(i=>i.text||'').join('\n');}catch(e){document.getElementById('outputContent').innerHTML+=`<div class="err-box">⚠️ Network error: ${e.message}</div>`;return null;}
+}
+
+function renderBCPs(list){const el=document.getElementById('outputContent');el.innerHTML='';list.forEach(({name,code,country,date,itManager,storeGM,text})=>{const dateStr=date?new Date(date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});const lines=text.split('\n').filter(l=>l.trim());let html=`<div class="bcp-card"><div class="bcp-head"><div class="bcp-head-top"><span class="bcp-tag">IT BCP TESTING REPORT</span><h3>${name}</h3></div><div class="bcp-meta"><div class="bcp-mi"><div class="lbl">Country</div><div class="val">${country||'UAE'}</div></div><div class="bcp-mi"><div class="lbl">Store Code</div><div class="val">${code||'—'}</div></div><div class="bcp-mi"><div class="lbl">Test Date</div><div class="val">${dateStr}</div></div><div class="bcp-mi"><div class="lbl">IT Manager</div><div class="val">${itManager||'—'}</div></div><div class="bcp-mi"><div class="lbl">Store GM</div><div class="val">${storeGM||'—'}</div></div><div class="bcp-mi"><div class="lbl">Version</div><div class="val">1.0 — ${new Date().getFullYear()}</div></div></div></div><div class="bcp-body">`;let curSec=null,secLines=[];const flush=()=>{if(!curSec)return;html+=`<div class="bcp-sec"><h4>${curSec}</h4>`;const content=secLines.join('\n');content.split('\n\n').filter(p=>p.trim()).forEach(para=>{const t=para.trim();if(/^\|/.test(t)){const rows=t.split('\n').filter(r=>r.trim()&&!/^[\|\s\-]+$/.test(r));if(rows.length){html+='<table class="bcp-tbl">';rows.forEach((row,i)=>{const cells=row.split('|').filter((_,ci)=>ci>0&&ci<row.split('|').length-1).map(c=>c.trim().replace(/\*\*/g,''));if(cells.some(c=>c))html+=`<tr>${cells.map(c=>`<${i===0?'th':'td'}>${c}</${i===0?'th':'td'}>`).join('')}</tr>`;});html+='</table>';}}else if(/^[-•]/.test(t)){html+='<ul>'+t.split('\n').filter(l=>l.trim()).map(l=>`<li>${l.replace(/^[-•\d\.]\s*/,'').replace(/\*\*/g,'')}</li>`).join('')+'</ul>';}else if(t){html+=`<p>${t.replace(/\*\*/g,'').replace(/\*/g,'')}</p>`;}});html+='</div>';secLines=[];};lines.forEach(line=>{if(/^##\s/.test(line)){flush();curSec=line.replace(/^##\s*/,'').trim();}else secLines.push(line);});flush();html+='</div></div>';el.innerHTML+=html;});}
+
+function copyBCP(){navigator.clipboard.writeText(lastText).then(()=>alert('Copied to clipboard!'));}
+function downloadTxt(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lastText],{type:'text/plain'}));a.download=`BCP_IT_${lastStoreName.replace(/\s+/g,'_')}.txt`;a.click();}
+
+async function downloadDocx(){const btn=event.currentTarget;btn.textContent='⏳ Building...';btn.disabled=true;try{const{Document,Packer,Paragraph,TextRun,HeadingLevel,AlignmentType}=docx;const bcpList=currentTab==='single'?[{name:lastStoreName,text:lastText}]:stores.filter(s=>s.status==='done').map(s=>({name:s.name,text:s.result}));const children=[];bcpList.forEach((bcp,idx)=>{if(idx>0)children.push(new Paragraph({pageBreakBefore:true,children:[new TextRun('')]}));children.push(new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:'Business Continuity Plan — Testing Report',bold:true,size:44,color:'1a1a1a'})]}));children.push(new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:`Store: ${bcp.name}`,size:30,bold:true,color:'b87000'})]}));children.push(new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:`Generated: ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})} | Carrefour UAE — Majid Al Futtaim`,size:20,color:'888888',italics:true})]}));children.push(new Paragraph({children:[new TextRun('')]}));bcp.text.split('\n').filter(l=>l.trim()).forEach(line=>{if(/^##\s/.test(line)){children.push(new Paragraph({heading:HeadingLevel.HEADING_1,children:[new TextRun({text:line.replace(/^##\s*/,'').trim(),bold:true,size:28,color:'b87000'})]}));}else if(/^###\s/.test(line)){children.push(new Paragraph({heading:HeadingLevel.HEADING_2,children:[new TextRun({text:line.replace(/^###\s*/,'').trim(),bold:true,size:24,color:'555555'})]}));}else if(/^[-•]/.test(line)){children.push(new Paragraph({bullet:{level:0},children:[new TextRun({text:line.replace(/^[-•]\s*/,'').replace(/\*\*/g,'').trim(),size:22})]}));}else if(/^\|/.test(line)&&!/^[\|\-\s]+$/.test(line)){const cells=line.split('|').filter((_,ci)=>ci>0&&ci<line.split('|').length-1).map(c=>c.trim().replace(/\*\*/g,''));if(cells.some(c=>c))children.push(new Paragraph({children:[new TextRun({text:cells.join(' | '),size:20,color:'333333'})]}));}else if(line.trim()){children.push(new Paragraph({children:[new TextRun({text:line.trim().replace(/\*\*/g,'').replace(/\*/g,''),size:22})]}))}});});const doc=new Document({sections:[{properties:{page:{size:{width:12240,height:15840},margin:{top:1440,right:1440,bottom:1440,left:1440}}},children}]});const blob=await Packer.toBlob(doc);const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`BCP_IT_${lastStoreName.replace(/\s+/g,'_')}_Report.docx`;a.click();}catch(e){alert('Error: '+e.message);}btn.textContent='📝 Download .docx';btn.disabled=false;}
+</script>
+</body>
+</html>
